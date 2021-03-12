@@ -1,0 +1,60 @@
+#!/bin/bash
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\e[0;33m'
+CYAN='\e[0;36m'
+RESET='\033[0m'
+
+download_dir="$HOME/Downloads"
+wtc_lms="$download_dir/wtc-lms"
+file_url=""
+ver_num=""
+lms_mv_err_path="/tmp/lms_update_error"
+ii=1
+
+while true; do
+    slack_msg=$(slack-cli -s 02_lms_releases -l $ii)
+    if [[ "$ii" == 20 ]]; then
+        echo -e "${RED}[Error]${RESET} Couldn't find download URL for wtc-lms binary " >&2
+        exit 1
+    fi
+    file_url_search_res=$(echo -e "$slack_msg" | grep "https://files")
+    if [[ $( echo -e "$file_url_search_res" | wc -l) = 1 && $file_url = "" ]]; then
+        file_url=$(echo -e "$file_url_search_res" | awk -F " " '{print $2}')
+    fi
+    ver_num_search_res=$(echo -e "$slack_msg" | grep -E "v[0-9]+.[0-9]+.[0-9]+")
+    if [[ $( echo -e $ver_num_search_res | wc -l ) = 1 && $ver_num = "" ]]; then
+        ver_num=$(echo -e $ver_num_search_res | awk -F " " '{print $15}' | sed 's/`//g' | sed 's/v//')
+    fi
+    if [[ "$file_url" != "" && "$ver_num" != "" ]]; then
+        break;
+    fi
+    ((ii++))
+done
+
+if [[ "$ver_num" == $(wtc-lms -v | awk -F " " '{print $3}') ]]; then
+    echo -e "${CYAN}[Info]${RESET} wtc-lms is up-to-date"
+else
+    if [[ "$WTC_LMS_DIR" != "" ]]; then
+        if [ -d "$WTC_LMS_DIR" ]; then
+            rm "$wtc_lms" 2> /dev/null
+            wget -P $download_dir -d --header="Authorization: Bearer $SLACK_TOKEN"  $file_url
+            chmod +x $wtc_lms
+            rm $lms_mv_err_path 2> /dev/null
+            mv $wtc_lms $WTC_LMS_DIR 2> $lms_mv_err_path
+            bin_mv_err=$(cat $lms_mv_err_path)
+            if [[ $(cat $lms_mv_err_path | wc -l) == 1 ]]; then
+                echo -e "${RED}[Error]${RESET} $(echo $bin_mv_err)"
+                exit 1;
+            fi
+            echo -e "${GREEN}["Success"]${RESET} Updated wtc-lms to version ${GREEN}$(wtc-lms -v | awk -F " " '{print $3}')${RESET}"
+        else
+            echo -e "${RED}["Error"]${RESET} $1 Doesn't exist" >&2
+            exit 1
+        fi
+    else
+        echo -e "${RED}["Error"]${RESET} $1 Environment variable \$WTC_LMS_DIR is missing" >&2
+        exit 1
+    fi
+fi
