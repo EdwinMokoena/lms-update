@@ -48,9 +48,9 @@ else
                 echo -e "${RED}[Error]${RESET} $(echo $bin_mv_err)"
                 exit 1;
             fi
-            echo -e "${GREEN}["Success"]${RESET} Updated wtc-lms to version ${GREEN}$(wtc-lms -v | awk -F " " '{print $3}')${RESET}"
+            echo -e "${GREEN}["Success"]${RESET} Updated wtc-lms to version ${GREEN}$ver_num${RESET}"
         else
-            echo -e "${RED}["Error"]${RESET} $1 Doesn't exist" >&2
+            echo -e "${RED}["Error"]${RESET} $WTC_LMS_DIR Doesn't exist" >&2
             exit 1
         fi
     else
