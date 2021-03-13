@@ -45,7 +45,7 @@ else
             mv $wtc_lms $WTC_LMS_DIR 2> $lms_mv_err_path
             bin_mv_err=$(cat $lms_mv_err_path)
             if [[ $(cat $lms_mv_err_path | wc -l) == 1 ]]; then
-                echo -e "${RED}[Error]${RESET} $(echo $bin_mv_err)"
+                echo -e "${RED}[Error]${RESET} $(echo $bin_mv_err)" >&2
                 exit 1;
             fi
             echo -e "${GREEN}["Success"]${RESET} Updated wtc-lms to version ${GREEN}$ver_num${RESET}"
