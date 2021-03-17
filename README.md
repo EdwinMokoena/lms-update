@@ -15,7 +15,7 @@ A Bash script to update wtc-lms
   * Copy the token string.
 3. Next you need to define the `SLACK_TOKEN` & `WTC_LMS_DIR` environment variables.
   * **SLACK_TOKEN** is required by slack-cli
-  * **WTC_LMS_DIR** is the directory where the wtc-lsm binary will be stored.E.g. export WTC_LMS_DIR=`~/bin/wtc-lms`
+  * **WTC_LMS_DIR** is the directory where the wtc-lsm binary will be stored.E.g. export WTC_LMS_DIR=`~/bin/`
 4. Put following in your **.bashrc/.zshrc**:
   * `export SLACK_TOKEN=xoxs-BUNCH-OF-NUMBERS`
   * `export WTC_LMS_DIR="~/bin/"`
